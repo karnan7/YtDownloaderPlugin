@@ -1,0 +1,11 @@
+{
+    "name": "YouTube Downloader",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "description": "Download any videos from YouTube",
+    "action":{
+        "default_icon":"logo192.png",
+        "default_popup":"index.html"
+    },
+    "permissions":["downloads", "tabs", "activeTab"]
+}
