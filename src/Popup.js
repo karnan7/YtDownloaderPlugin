@@ -1,9 +1,10 @@
   /*global chrome*/
 import React, {useState, useEffect} from "react";
 import './Popup.css';
-import { Container, Button, Input, Row, Dropdown } from 'reactstrap'
+import { Container, Button, Input, Row } from 'reactstrap'
 import "bootstrap/dist/css/bootstrap.min.css";
-const ytdl = require('ytdl-core');
+import ytdl from 'ytdl-core';
+
 
 
 const Popup =() => {
@@ -11,13 +12,17 @@ const Popup =() => {
     const[resolution, setResolution] = useState("720p");
     const[downloadProgress, setDownloadProgress] = useState("0");
 
+    console.log(videoUrl);
 
-    const handleDownload= async ()=>{
+    const handleDownload= async (videoUrl, resolution)=>{
+
+      console.log("the",typeof videoUrl);
         const videoInfo = await ytdl.getInfo(videoUrl);
         console.log(videoInfo);
         const videoFormats = ytdl.filterFormats(videoInfo.formats, 'videoonly');
         const selectedFormat = videoFormats.find((format) => format.qualityLabel === resolution);
         const videoLink = selectedFormat.url
+
 
         
         const downloadId = await chrome.downloads.download({
@@ -33,37 +38,29 @@ const Popup =() => {
 
           chrome.downloads.onChanged.addListener((downloadDelta) => {
             if (downloadDelta.id === downloadId && downloadDelta.state) {
+              
               if (downloadDelta.state.current === 'in_progress') {
                 const progress = Math.round((downloadDelta.bytesReceived / downloadDelta.totalBytes) * 100);
                 setDownloadProgress(progress);
+
               } else if (downloadDelta.state.current === 'complete') {
+                  chrome.notifications.create({
+                  type: 'basic',
+                  iconUrl: 'icon.png',
+                  title: 'Download Complete',
+                  message: 'The video has been downloaded successfully.',
+                });
                 setDownloadProgress(0);
               }
             }
           });
-
-          chrome.downloads.onChanged.addListener((downloadDelta) => {
-            if (downloadDelta.state && downloadDelta.state.current === 'complete') {
-              chrome.notifications.create({
-                type: 'basic',
-                iconUrl: 'icon.png',
-                title: 'Download Complete',
-                message: 'The video has been downloaded successfully.',
-              });
-            }
-          });
     }
 
-
-    useEffect(() => {
-        chrome.tabs.onUpdated.addListener((changeInfo, tab) => {
-          if (tab.active && changeInfo.url && changeInfo.url.startsWith('https://www.youtube.com/watch')) {
-            setVideoUrl(changeInfo.url);
-          }
-        });
-    
+      useEffect(() => {
+        
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const url = tabs[0].url;
+          console.log('videoUrl inside useEffect:', url);
           if (url.startsWith('https://www.youtube.com/watch')) {
             setVideoUrl(url);
           }
