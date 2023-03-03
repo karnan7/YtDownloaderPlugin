@@ -3,9 +3,12 @@
     "version": "1.0.0",
     "manifest_version": 3,
     "description": "Download any videos from YouTube",
+    "icons": {
+        "48": "yt.png"
+    },
     "action":{
-        "default_icon":"logo192.png",
+        "default_icon":"yt.png",
         "default_popup":"index.html"
     },
-    "permissions":["downloads", "tabs", "activeTab"]
+    "permissions":["downloads", "tabs", "activeTab", "storage"]
 }
