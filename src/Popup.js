@@ -1,7 +1,7 @@
   /*global chrome*/
 import React, {useState, useEffect} from "react";
 import './Popup.css';
-import { Container, Button, Input, Row } from 'reactstrap'
+import { Container, Button, Input, Form, FormGroup, InputGroup } from 'reactstrap'
 import "bootstrap/dist/css/bootstrap.min.css";
 import ytdl from 'ytdl-core';
 
@@ -12,17 +12,18 @@ const Popup =() => {
     const[resolution, setResolution] = useState("720p");
     const[downloadProgress, setDownloadProgress] = useState("0");
 
-    console.log(videoUrl);
+  
 
-    const handleDownload= async (videoUrl, resolution)=>{
+    const handleDownload= async ( resolution)=>{
 
       console.log("the",typeof videoUrl);
+      console.log(videoUrl);
         const videoInfo = await ytdl.getInfo(videoUrl);
-        console.log(videoInfo);
+        console.log("videoInfo",videoInfo);
         const videoFormats = ytdl.filterFormats(videoInfo.formats, 'videoonly');
         const selectedFormat = videoFormats.find((format) => format.qualityLabel === resolution);
         const videoLink = selectedFormat.url
-
+        
 
         
         const downloadId = await chrome.downloads.download({
@@ -60,7 +61,6 @@ const Popup =() => {
         
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const url = tabs[0].url;
-          console.log('videoUrl inside useEffect:', url);
           if (url.startsWith('https://www.youtube.com/watch')) {
             setVideoUrl(url);
           }
@@ -69,19 +69,24 @@ const Popup =() => {
 
     return (
       <Container fluid className="popup">
-            <Row className="mt-5 mb-5 items">
-                    <Input 
-                    type="text" 
-                    name="url"
-                    value={videoUrl} 
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                    />
-                <select value={resolution} onChange={(e) => setResolution(e.target.value)}>
-                    <option value="360p">360p</option>
-                    <option value="480p">480p</option>
-                    <option value="720p">720p</option>
-                </select>
-            </Row>
+        <h1 className="text-center">YouTube Video Downloader</h1>
+            <Form>
+              <FormGroup className="form-group">
+                <InputGroup>
+                  <Input 
+                  type="text" 
+                  name="url"
+                  value={videoUrl} 
+                  // onChange={(e) => setVideoUrl(e.target.value)}
+                  />
+                  <select value={resolution} onChange={(e) => setResolution(e.target.value)}>
+                      <option value="360p">360p</option>
+                      <option value="480p">480p</option>
+                      <option value="720p">720p</option>
+                  </select>
+                </InputGroup>
+              </FormGroup>
+            </Form>
             <Button onClick={handleDownload} color="primary">Download</Button>
             <div>Download Progress: {downloadProgress}%</div>
       </Container>
