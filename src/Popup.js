@@ -50,7 +50,7 @@ const Popup =() => {
           }
         });
     }
-    
+
     useEffect(() => {
       if (typeof chrome !== "undefined" && chrome.tabs) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
